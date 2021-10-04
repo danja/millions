@@ -3,99 +3,75 @@ var image = new Image()
 window.onload = function () {
   var easel = document.getElementById('easel')
 
-  var firstCanvas = document.createElement('canvas')
+  var imageCanvas = document.createElement('canvas')
 
-  // var firstCanvas = document.getElementById('firstCanvas')
-  easel.appendChild(firstCanvas)
-  var firstContext = firstCanvas.getContext('2d')
+  var div = document.createElement('div')
+  var captionText = document.createTextNode('1')
+  var captionElement = document.createElement('caption')
+  easel
+    .appendChild(div)
+    .appendChild(captionElement)
+    .appendChild(captionText)
 
-  // var secondCanvas = document.getElementById('secondCanvas')
-  // var thirdCanvas = document.getElementById('thirdCanvas')
+  div.appendChild(imageCanvas)
 
-  // var secondContext = secondCanvas.getContext('2d')
-  // var thirdContext = thirdCanvas.getContext('2d')
+  var imageContext = imageCanvas.getContext('2d')
 
-  firstContext.globalCompositeOperation = 'destination-under'
-  firstContext.fillStyle = '#ddddff'
-  firstContext.fillRect(0, 0, firstCanvas.width, firstCanvas.height)
-
-  // secondContext.globalCompositeOperation = 'destination-under'
-  // secondContext.fillStyle = 'blue' //'#ddddff'
-  // secondContext.fillRect(0, 0, firstCanvas.width, firstCanvas.height)
-
+  /* background colour
+  imageContext.globalCompositeOperation = 'destination-under'
+  imageContext.fillStyle = '#ddddff'
+  imageContext.fillRect(0, 0, imageCanvas.width, imageCanvas.height)
+*/
   image.src = 'images/dot.png'
 
-  var size = 500
+  var size = 1000 // started crashing above 10,000
   var border = size / 10
   var multiplier = 10
 
-  firstCanvas.width = size
-  firstCanvas.height = size
-  /*
-  secondCanvas.width = size
-  secondCanvas.height = size
-  thirdCanvas.width = size
-  thirdCanvas.height = size
-*/
-  // drawBlock(firstContext, image, i, j, 1, 1, '#CCCCFF')
+  imageCanvas.width = size
+  imageCanvas.height = size
 
   image.onload = function (ev) {
-    firstContext.globalCompositeOperation = 'destination-under'
-    firstContext.fillStyle = '#ddffff'
-    firstContext.fillRect(0, 0, size, size)
-
-    /*
-    secondContext.globalCompositeOperation = 'destination-under'
-    secondContext.fillStyle = '#ddddff'
-    secondContext.fillRect(0, 0, size, size)
+    /* background colour
+    imageContext.globalCompositeOperation = 'destination-under'
+    imageContext.fillStyle = '#ddffff'
+    imageContext.fillRect(0, 0, size, size)
 */
-    var scaleForBorder = (size - border * 2) / size
-    // firstContext.scale(scaleForBorder, scaleForBorder)
 
-    firstContext.drawImage(
+    var scaleForBorder = (size - border * 2) / size
+
+    imageContext.drawImage(
       image,
       border,
       border,
-      firstCanvas.width - border * 2,
-      firstCanvas.height - border * 2
+      imageCanvas.width - border * 2,
+      imageCanvas.height - border * 2
     )
 
-    console.log('scaleForB =' + scaleForBorder)
+    previousCanvas = imageCanvas
+    previousContext = imageContext
 
-    // secondContext.drawImage(firstCanvas, border, border)
+    for (var c = 1; c < 4; c++) {
+      var div = document.createElement('div')
+      var caption = (100 ** c).toString()
+      var captionText = document.createTextNode(caption)
+      var captionElement = document.createElement('caption')
+      easel
+        .appendChild(div)
+        .appendChild(captionElement)
+        .appendChild(captionText)
 
-    // multiply(thirdContext, secondCanvas)
-    //multiply(firstContext, secondCanvas, secondContext)
-    previousCanvas = firstCanvas
-    previousContext = firstContext
-
-    for (var c = 1; c < 5; c++) {
-      // var canvasName = 'canvas' + c.toString()
-      // var canvas = document.createElement(canvasName)
       var canvas = document.createElement('canvas')
       canvas.width = size
       canvas.height = size
-      easel.appendChild(canvas)
 
-      var caption = (10 ** c).toString()
-      var captionText = document.createTextNode(caption)
-      var captionElement = document.createElement('caption')
-      easel.appendChild(captionElement).appendChild(captionText)
+      div.appendChild(canvas)
+
       var context = canvas.getContext('2d')
       multiply(context, previousCanvas, previousCanvas, true)
       previousCanvas = canvas
       previousContext = context
     }
-
-    // multiply(secondContext, firstCanvas, firstContext, true)
-
-    //multiply(thirdContext, secondCanvas, secondContext, true)
-
-    // multiply(firstContext, thirdCanvas, thirdContext, true)
-
-    //  multiply(secondContext, firstCanvas, firstContext, false)
-
-    //  multiply(firstContext, secondCanvas, secondContext, true)
   }
 
   function multiply (parentContext, childCanvas, childContext, scale) {
