@@ -1,45 +1,61 @@
+// global to keep things simple
 var image = new Image()
 
-function submitForm () {
-  return false
-}
-
-window.onload = function drawDots () {
+/*
+ * Called when page is loaded
+ */
+window.onload = function go () {
+  prepareUploader()
+  image.src = 'images/sheep.png'
   setup()
 }
 
+/*
+ * called when form submit button is clicked
+ */
+function submitForm () {
+  setup()
+  setup().draw()
+  return false
+}
+
+/*
+ * sets up the Upload Image response
+ */
 function prepareUploader () {
   let imgInput = document.getElementById('imageInput')
   imgInput.addEventListener('change', function (e) {
     if (e.target.files) {
+      console.log('target')
       let imageFile = e.target.files[0] //here we get the image file
       var reader = new FileReader()
       reader.readAsDataURL(imageFile)
       reader.onloadend = function (e) {
-        var myImage = new Image() // Creates image object
-        myImage.src = e.target.result // Assigns converted image to image object
-        myImage.onload = function (ev) {
-          var myCanvas = document.getElementById('myCanvas') // Creates a canvas object
-          var myContext = myCanvas.getContext('2d') // Creates a contect object
-          myCanvas.width = myImage.width // Assigns image's width to canvas
-          myCanvas.height = myImage.height // Assigns image's height to canvas
-          myContext.drawImage(myImage, 0, 0) // Draws the image on canvas
-          let imgData = myCanvas.toDataURL('image/jpeg', 0.75) // Assigns image base64 string in jpeg format to a variable
-        }
+        image.src = e.target.result // Assigns converted image to image object
+        setup()
       }
     }
   })
 }
 
+/*
+ * this is effectively the main function
+ *
+ * it would no doubt benefit from refactoring, it's on it's way to becoming an object/module
+ * but it was only necessary to expose the draw() function elsewhere (while having the variables in scope)
+ *
+ */
 function setup () {
-  prepareUploader()
-  var size = document.getElementById('size').value
-  var borderProportion = document.getElementById('borderProportion').value
-  var multiplier = document.getElementById('multiplier').value
-  var iterations = document.getElementById('iterations').value
+  // pull values from HTML form
+  let size = document.getElementById('size').value
+  let borderProportion = document.getElementById('borderProportion').value
+  let multiplier = document.getElementById('multiplier').value
+  let iterations = document.getElementById('iterations').value
 
   var easel = document.getElementById('easel')
+  easel.innerHTML = '' // remove all child elements
 
+  // create containers for the first image
   var imageCanvas = document.createElement('canvas')
 
   var div = document.createElement('div')
@@ -52,57 +68,32 @@ function setup () {
 
   div.appendChild(imageCanvas)
 
+  // where the drawing takes place
   var imageContext = imageCanvas.getContext('2d')
 
-  /* background colour
+  // background colour
   imageContext.globalCompositeOperation = 'destination-under'
-  imageContext.fillStyle = '#ddddff'
+  imageContext.fillStyle = '#ffffff'
   imageContext.fillRect(0, 0, imageCanvas.width, imageCanvas.height)
-*/
-  image.src = 'images/sheep.png'
 
-  // var size = 800 // started crashing above 10,000
-  //var borderProportion = 0.05
   var border = size * borderProportion
-  // var multiplier = 10
-  // var iterations = 3
 
   imageCanvas.width = size
   imageCanvas.height = size
 
-  /*
-  function init () {
-    let imgInput = document.getElementById('imageInput')
-    imgInput.addEventListener('change', function (e) {
-      if (e.target.files) {
-        let imageFile = e.target.files[0] //here we get the image file
-        var reader = new FileReader()
-        reader.readAsDataURL(imageFile)
-        reader.onloadend = function (e) {
-          var myImage = new Image() // Creates image object
-          myImage.src = e.target.result // Assigns converted image to image object
-         myImage.onload = function (ev) {
-         
-         //   let imgData = myCanvas.toDataURL('image/jpeg', 0.75) // Assigns image base64 string in jpeg format to a variable
-          // }
-        }
-
-
-      }
-    }
-  }
-}
-*/
-
   image.onload = function (ev) {
-    /* background colour
+    draw()
+  }
+
+  function draw () {
+    // background colour
     imageContext.globalCompositeOperation = 'destination-under'
-    imageContext.fillStyle = '#ddffff'
+    imageContext.fillStyle = '#ffffff'
     imageContext.fillRect(0, 0, size, size)
-*/
 
     var scaleForBorder = (size - border * 2) / size
 
+    // draw the initial image
     imageContext.drawImage(
       image,
       border,
@@ -111,12 +102,12 @@ function setup () {
       imageCanvas.height - border * 2
     )
 
-    previousCanvas = imageCanvas
-    previousContext = imageContext
+    var previousCanvas = imageCanvas
+    var previousContext = imageContext
 
     for (var c = 0; c < iterations; c++) {
       var div = document.createElement('div')
-      var caption = (100 ** (c + 1)).toString()
+      var caption = ((multiplier * multiplier) ** (c + 1)).toString()
       var captionText = document.createTextNode(caption)
       var captionElement = document.createElement('caption')
       easel
@@ -137,7 +128,7 @@ function setup () {
     }
   }
 
-  function multiply (parentContext, childCanvas, childContext, scale) {
+  function multiply (parentContext, childCanvas, scale) {
     parentContext.clearRect(
       0,
       0,
@@ -152,6 +143,7 @@ function setup () {
       parentContext.scale(scaleForBorder, scaleForBorder)
     }
 
+    // draw the little ones
     for (var i = 0; i < multiplier; i++) {
       for (var j = 0; j < multiplier; j++) {
         x = i * size
@@ -163,5 +155,10 @@ function setup () {
         parentContext.drawImage(childCanvas, x, y)
       }
     }
+  }
+
+  // expose the draw() function
+  return {
+    draw: draw
   }
 }
