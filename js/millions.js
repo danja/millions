@@ -6,7 +6,7 @@ var image = new Image()
  */
 window.onload = function go () {
   prepareUploader()
-  image.src = 'images/sheep.png'
+  image.src = 'images/dot.png'
   setup()
 }
 
