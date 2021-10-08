@@ -1,6 +1,6 @@
 # Millions
 
-Draw a million images in-browser with HTML canvases & Javascript
+Draw lots of images in-browser with HTML canvases & Javascript
 
 **Installation** : just clone/download this repo, put the files on a Web server and open index.html in a browser.
 
